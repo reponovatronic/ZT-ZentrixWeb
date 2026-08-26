@@ -2027,6 +2027,7 @@
   color: #ffffff;
 
   padding: 24px 48px;
+
 }
 
 .hb-footer-content {
@@ -2039,9 +2040,12 @@
   grid-template-columns:
     1fr auto 1fr;
 
-  align-items: center;
+  align-items: center;       /* Centrado vertical */
+  justify-content: center;   /* Centrado horizontal */
   display: flex;
   gap: 32px;
+
+  
 }
 
 .hb-footer-brand {
