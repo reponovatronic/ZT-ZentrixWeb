@@ -16,7 +16,7 @@ const HERO_SLIDES = [
 ];
 
 const CLIENT_LOGOS = [
-  "/landing/logo1.png",
+//  "/landing/logo1.png",
   "/landing/logo2.png",
   "/landing/logo3.png",
   "/landing/logo4.png",
