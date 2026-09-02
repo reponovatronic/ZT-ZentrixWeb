@@ -182,7 +182,7 @@ export function LandingHowItWorks() {
         <div className="tech-clients-section">
 
           <h3 className="clients-title">
-            Más de 300 empresas eligieron tener el control en sus manos
+            Más de 100 empresas eligieron tener el control en sus manos
           </h3>
 
           {/* =========================
