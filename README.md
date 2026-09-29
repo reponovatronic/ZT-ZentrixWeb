@@ -1,4 +1,4 @@
-# 3. Documentación funcional, diseño, mantenimiento y despliegue
+# Documentación funcional, diseño, mantenimiento y despliegue
 
 ## 1. Funcionalidad – Análisis funcional
 
