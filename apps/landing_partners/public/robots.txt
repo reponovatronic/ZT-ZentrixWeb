@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://www.zentrixlatam.com/sitemap.xml
+Sitemap: https://www.zentrixparts.com/sitemap.xml
