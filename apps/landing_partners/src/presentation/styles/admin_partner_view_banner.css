@@ -1,47 +1,97 @@
 .hb-admin-context-banner-inner {
   display: flex;
   align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
   gap: 0.75rem 1rem;
-  padding: 0.55rem 0.85rem;
+
+  width: fit-content;
+  max-width: min(440px, calc(100vw - 2rem));
+  padding: 0.65rem 1rem;
+
+  background: rgba(13, 27, 42, 0.96);
+  border: 1px solid rgba(76, 215, 246, 0.2);
   border-radius: 999px;
-  background: rgba(15, 23, 42, 0.92);
+
   color: #f8fafc;
   font-size: 0.8125rem;
   line-height: 1.35;
-  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.25);
-  flex-wrap: wrap;
-  justify-content: center;
-  max-width: min(440px, calc(100vw - 2rem));
+
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 
 .hb-admin-context-banner-label {
   display: block;
+
+  color: #94a3b8;
   font-size: 0.6875rem;
   font-weight: 600;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.05em;
+  line-height: 1.3;
   text-transform: uppercase;
-  color: rgb(148, 163, 184);
 }
 
 .hb-admin-context-banner-name {
   display: block;
-  font-weight: 600;
+
+  color: #f8fafc;
   font-size: 0.9375rem;
+  font-weight: 600;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
 }
 
 .hb-admin-context-banner-btn {
-  border: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0.4rem 0.9rem;
+
+  background: rgba(76, 215, 246, 0.1);
+  border: 1px solid rgba(76, 215, 246, 0.3);
   border-radius: 999px;
-  padding: 0.35rem 0.85rem;
-  font-weight: 600;
+
+  color: #4CD7F6;
   font-size: 0.75rem;
-  cursor: pointer;
-  background: #f43f5e;
-  color: #fff;
+  font-weight: 600;
+  line-height: 1.3;
   white-space: nowrap;
+
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.hb-admin-context-banner-btn:hover {
+  background: rgba(76, 215, 246, 0.18);
+  border-color: rgba(76, 215, 246, 0.55);
+  color: #ffffff;
 }
 
 .hb-admin-context-banner-btn:focus-visible {
-  outline: 2px solid #f8fafc;
-  outline-offset: 2px;
+  outline: 2px solid #4CD7F6;
+  outline-offset: 3px;
+}
+
+.hb-admin-context-banner-btn:active {
+  background: rgba(76, 215, 246, 0.24);
+}
+
+.hb-admin-context-banner-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+@media (max-width: 480px) {
+  .hb-admin-context-banner-inner {
+    gap: 0.6rem 0.75rem;
+    padding: 0.6rem 0.85rem;
+    border-radius: 16px;
+  }
 }

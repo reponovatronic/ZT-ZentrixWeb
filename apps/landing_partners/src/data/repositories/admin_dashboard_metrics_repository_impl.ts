@@ -10,22 +10,37 @@ import { adminDashboardMetricsFromJson } from "@/presentation/mappers/admin_dash
 
 export class AdminDashboardMetricsRepositoryImpl implements AdminDashboardMetricsRepository {
   async fetchMetrics(params: FetchAdminDashboardMetricsParams): Promise<AdminDashboardMetrics> {
-    const j = isPortalAdminApiMode()
-      ? await getAdminDashboardMetricsJson(
-          {
-            partnerId: params.partnerId,
-            dateFrom: params.dateFrom,
-            dateTo: params.dateTo,
-          },
-          params.signal
-        )
-      : await getPartnerDashboardMetricsJson(
-          {
-            dateFrom: params.dateFrom,
-            dateTo: params.dateTo,
-          },
-          params.signal
-        );
-    return adminDashboardMetricsFromJson(j);
+  let j: Record<string, unknown>;
+
+  if (isPortalAdminApiMode()) {
+    const partnerId = params.partnerId;
+
+    if (
+      partnerId == null ||
+      !Number.isSafeInteger(partnerId) ||
+      partnerId <= 0
+    ) {
+      throw new Error("El identificador del socio no es válido.");
+    }
+
+    j = await getAdminDashboardMetricsJson(
+      {
+        partnerId,
+        dateFrom: params.dateFrom,
+        dateTo: params.dateTo,
+      },
+      params.signal
+    );
+  } else {
+    j = await getPartnerDashboardMetricsJson(
+      {
+        dateFrom: params.dateFrom,
+        dateTo: params.dateTo,
+      },
+      params.signal
+    );
   }
+
+  return adminDashboardMetricsFromJson(j);
+}
 }

@@ -1,3 +1,4 @@
+
 .hb-drp-wrap {
   position: relative;
   width: 100%;
@@ -6,9 +7,9 @@
 .hb-drp-label {
   display: block;
   margin-bottom: 0.4rem;
+  color: #cbd5e1;
   font-size: 0.82rem;
   font-weight: 700;
-  color: var(--hb-navy, #1b2748);
 }
 
 .hb-drp-trigger {
@@ -17,26 +18,30 @@
   gap: 0.65rem;
   width: 100%;
   padding: 0.7rem 0.85rem;
+
+  background: #0d1b2a;
+  border: 1px solid rgba(148, 163, 184, 0.2);
   border-radius: 12px;
-  border: 1px solid rgba(27, 39, 72, 0.14);
-  background: #fff;
+
+  color: #f8fafc;
   font-family: inherit;
   font-size: 0.88rem;
   font-weight: 600;
-  color: var(--hb-navy, #1b2748);
-  cursor: pointer;
   text-align: left;
-  transition: border-color 0.15s, box-shadow 0.15s;
+
+  cursor: pointer;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
 }
 
 .hb-drp-trigger:hover {
-  border-color: rgba(244, 54, 76, 0.35);
+  border-color: rgba(76, 215, 246, 0.45);
+  background: #102238;
 }
 
 .hb-drp-trigger:focus-visible {
   outline: none;
-  border-color: rgba(244, 54, 76, 0.45);
-  box-shadow: 0 0 0 3px rgba(244, 54, 76, 0.12);
+  border-color: #4CD7F6;
+  box-shadow: 0 0 0 3px rgba(76, 215, 246, 0.14);
 }
 
 .hb-drp-trigger-text {
@@ -46,7 +51,7 @@
 
 .hb-drp-trigger-icon {
   flex-shrink: 0;
-  color: rgba(27, 39, 72, 0.45);
+  color: #94a3b8;
 }
 
 .hb-drp-panel {
@@ -57,10 +62,12 @@
   right: 0;
   min-width: min(100%, 340px);
   padding: 0.85rem;
+
+  background: #0d1b2a;
+  border: 1px solid rgba(148, 163, 184, 0.18);
   border-radius: 14px;
-  border: 1px solid rgba(27, 39, 72, 0.1);
-  background: #fff;
-  box-shadow: 0 16px 48px rgba(27, 39, 72, 0.14);
+
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.4);
 }
 
 .hb-drp-presets {
@@ -72,24 +79,30 @@
 
 .hb-drp-preset {
   padding: 0.35rem 0.65rem;
+
+  background: rgba(148, 163, 184, 0.06);
+  border: 1px solid rgba(148, 163, 184, 0.18);
   border-radius: 999px;
-  border: 1px solid rgba(27, 39, 72, 0.12);
-  background: #fff;
+
+  color: #cbd5e1;
   font-family: inherit;
   font-size: 0.72rem;
   font-weight: 600;
-  color: rgba(27, 39, 72, 0.75);
+
   cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
 }
 
 .hb-drp-preset:hover {
-  border-color: rgba(244, 54, 76, 0.3);
+  background: rgba(76, 215, 246, 0.08);
+  border-color: rgba(76, 215, 246, 0.4);
+  color: #4CD7F6;
 }
 
 .hb-drp-preset--on {
-  border-color: rgba(244, 54, 76, 0.45);
-  background: rgba(244, 54, 76, 0.08);
-  color: var(--hb-red, #f4364c);
+  background: rgba(76, 215, 246, 0.12);
+  border-color: rgba(76, 215, 246, 0.5);
+  color: #4CD7F6;
 }
 
 .hb-drp-inputs {
@@ -102,18 +115,30 @@
 .hb-drp-field span {
   display: block;
   margin-bottom: 0.25rem;
+  color: #94a3b8;
   font-size: 0.72rem;
   font-weight: 600;
-  color: rgba(27, 39, 72, 0.55);
 }
 
 .hb-drp-field input[type="date"] {
   width: 100%;
+  min-width: 0;
   padding: 0.45rem 0.5rem;
+
+  background: #071026;
+  border: 1px solid rgba(148, 163, 184, 0.2);
   border-radius: 8px;
-  border: 1px solid rgba(27, 39, 72, 0.14);
+
+  color: #f8fafc;
+  color-scheme: dark;
   font-family: inherit;
   font-size: 0.82rem;
+}
+
+.hb-drp-field input[type="date"]:focus-visible {
+  outline: none;
+  border-color: #4CD7F6;
+  box-shadow: 0 0 0 2px rgba(76, 215, 246, 0.12);
 }
 
 .hb-drp-cal-head {
@@ -124,9 +149,9 @@
 }
 
 .hb-drp-cal-title {
+  color: #f8fafc;
   font-size: 0.85rem;
   font-weight: 800;
-  color: var(--hb-navy, #1b2748);
   text-transform: capitalize;
 }
 
@@ -136,18 +161,27 @@
 }
 
 .hb-drp-cal-nav button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   width: 32px;
   height: 32px;
-  border: none;
+
+  background: rgba(148, 163, 184, 0.08);
+  border: 1px solid rgba(148, 163, 184, 0.12);
   border-radius: 8px;
-  background: rgba(27, 39, 72, 0.06);
-  cursor: pointer;
+
+  color: #cbd5e1;
   font-size: 1rem;
-  color: var(--hb-navy, #1b2748);
+
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
 }
 
 .hb-drp-cal-nav button:hover {
-  background: rgba(244, 54, 76, 0.1);
+  background: rgba(76, 215, 246, 0.12);
+  border-color: rgba(76, 215, 246, 0.35);
+  color: #4CD7F6;
 }
 
 .hb-drp-cal-grid {
@@ -157,72 +191,94 @@
 }
 
 .hb-drp-cal-dow {
+  padding: 0.2rem 0;
+  color: #64748b;
   font-size: 0.65rem;
   font-weight: 700;
   text-align: center;
-  color: rgba(27, 39, 72, 0.45);
-  padding: 0.2rem 0;
 }
 
 .hb-drp-cal-day {
   aspect-ratio: 1;
   min-height: 32px;
+
+  background: transparent;
   border: none;
   border-radius: 8px;
-  background: transparent;
+
+  color: #cbd5e1;
   font-family: inherit;
   font-size: 0.78rem;
   font-weight: 600;
-  color: var(--hb-navy, #1b2748);
+
   cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
 }
 
 .hb-drp-cal-day:hover:not(:disabled) {
-  background: rgba(244, 54, 76, 0.1);
+  background: rgba(76, 215, 246, 0.12);
+  color: #4CD7F6;
 }
 
 .hb-drp-cal-day--muted {
-  color: rgba(27, 39, 72, 0.28);
+  color: #475569;
 }
 
 .hb-drp-cal-day--in-range {
-  background: rgba(244, 54, 76, 0.12);
+  background: rgba(76, 215, 246, 0.1);
   border-radius: 0;
+  color: #bae6fd;
 }
 
 .hb-drp-cal-day--edge {
-  background: var(--hb-red, #f4364c);
-  color: #fff;
+  background: #4CD7F6;
+  border-radius: 8px;
+  color: #071026;
+  font-weight: 800;
 }
 
 .hb-drp-cal-day:disabled {
+  opacity: 0.3;
   cursor: default;
-  opacity: 0.35;
 }
 
 .hb-drp-hint {
   margin: 0.5rem 0 0;
+  color: #94a3b8;
   font-size: 0.72rem;
-  color: rgba(27, 39, 72, 0.5);
   font-weight: 500;
 }
 
 .hb-drp-apply {
-  margin-top: 0.65rem;
   width: 100%;
-  padding: 0.55rem;
-  border: none;
+  margin-top: 0.65rem;
+  padding: 0.6rem;
+
+  background: #4CD7F6;
+  border: 1px solid #4CD7F6;
   border-radius: 10px;
-  background: var(--hb-red, #f4364c);
-  color: #fff;
+
+  color: #071026;
   font-family: inherit;
   font-size: 0.82rem;
   font-weight: 700;
+
   cursor: pointer;
+  transition: background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.hb-drp-apply:hover:not(:disabled) {
+  background: #7ce5fa;
+  box-shadow: 0 4px 14px rgba(76, 215, 246, 0.18);
+}
+
+.hb-drp-apply:focus-visible {
+  outline: 2px solid #4CD7F6;
+  outline-offset: 3px;
 }
 
 .hb-drp-apply:disabled {
-  opacity: 0.45;
+  opacity: 0.4;
   cursor: not-allowed;
 }
 
@@ -232,11 +288,13 @@
 
 .hb-drp-panel--embedded {
   position: static;
+  min-width: 0;
   margin-top: 0;
   padding: 0;
+  background: transparent;
   border: none;
+  border-radius: 0;
   box-shadow: none;
-  min-width: 0;
 }
 
 /* Dentro del popover «Filtro» no duplicar chips de periodo */
@@ -247,4 +305,18 @@
 .hb-drp-panel--embedded .hb-drp-cal-day {
   min-height: 1.75rem;
   font-size: 0.75rem;
+}
+
+@media (max-width: 480px) {
+  .hb-drp-panel {
+    padding: 0.7rem;
+  }
+
+  .hb-drp-inputs {
+    gap: 0.5rem;
+  }
+
+  .hb-drp-cal-day {
+    min-height: 30px;
+  }
 }

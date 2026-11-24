@@ -16,7 +16,7 @@ import {
   formatChartTooltipAmount,
 } from "./chart_axis_scale";
 
-const PD_RED = "#e94e51";
+const PD_RED = "#1421dad8";
 /** Ancho de la banda vertical (como en el mock Figma). */
 const HIGHLIGHT_BAND_STROKE = 48;
 
@@ -151,32 +151,34 @@ export function SalesLineChart({
           margin={{ top: 32, right: 8, left: 0, bottom: 4 }}
         >
           <defs>
-            <linearGradient id={lineStroke} x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="#ffc8ce" />
-              <stop offset="35%" stopColor="#ff7e8b" />
-              <stop offset="55%" stopColor="#f4364c" />
-              <stop offset="100%" stopColor="#ffc8ce" />
-            </linearGradient>
-            <filter
-              id={`pd-sales-shadow-${uid}`}
-              x="-20%"
-              y="-20%"
-              width="140%"
-              height="140%"
-            >
-              <feDropShadow
-                dx="0"
-                dy="4"
-                stdDeviation="4"
-                floodColor="#f4364c"
-                floodOpacity="0.25"
-              />
-            </filter>
+          <linearGradient id={lineStroke} x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="#b5f2ff" />
+            <stop offset="35%" stopColor="#7ce5fa" />
+            <stop offset="55%" stopColor="#4CD7F6" />
+            <stop offset="100%" stopColor="#b5f2ff" />
+          </linearGradient>
+
+          <filter
+            id={`pd-sales-shadow-${uid}`}
+            x="-20%"
+            y="-20%"
+            width="140%"
+            height="140%"
+          >
+            <feDropShadow
+              dx="0"
+              dy="4"
+              stdDeviation="4"
+              floodColor="#4CD7F6"
+              floodOpacity="0.22"
+            />
+          </filter>
+
           </defs>
           <CartesianGrid
             strokeDasharray="4 6"
             vertical={false}
-            stroke="rgba(55, 65, 81, 0.18)"
+            stroke="rgba(172, 185, 206, 0.77)"
           />
           <XAxis
             dataKey="idx"
@@ -184,7 +186,7 @@ export function SalesLineChart({
             domain={xDomain}
             ticks={indexedData.map((d) => d.idx)}
             tickFormatter={(idx) => indexedData[idx]?.label ?? ""}
-            tick={{ fill: "rgba(27, 39, 72, 0.5)", fontSize: 11, fontWeight: 700 }}
+            tick={{ fill: "rgb(227, 234, 255)", fontSize: 11, fontWeight: 700 }}
             axisLine={false}
             tickLine={false}
             dy={6}
@@ -194,7 +196,7 @@ export function SalesLineChart({
             domain={[0, yTop]}
             ticks={yTicks}
             tickFormatter={formatChartAxisAmount}
-            tick={{ fill: "rgba(27, 39, 72, 0.45)", fontSize: 11, fontWeight: 600 }}
+            tick={{ fill: "rgb(227, 234, 255)", fontSize: 11, fontWeight: 600 }}
             axisLine={false}
             tickLine={false}
           />
@@ -218,7 +220,7 @@ export function SalesLineChart({
               strokeWidth={2.5}
               filter={`url(#pd-sales-shadow-${uid})`}
               dot={<SalesHighlightDot peakIdx={peakIdx} />}
-              activeDot={{ r: 5, fill: "#374151", stroke: "none" }}
+              activeDot={{ r: 5, fill: "rgb(227, 234, 255)", stroke: "none" }}
               isAnimationActive={false}
             />
           ) : null}

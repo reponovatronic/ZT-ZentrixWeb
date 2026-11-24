@@ -139,33 +139,57 @@ export function logBrowserHttpError(
   }
 }
 
-/** `fetch` con logs neón en dev; reconstruye la respuesta tras leer el cuerpo. */
-export async function devLoggedFetch(url: string, init?: RequestInit): Promise<Response> {
+
+/** `fetch` con logs neón en dev; conserva la respuesta original. */
+export async function devLoggedFetch(
+  url: string,
+  init?: RequestInit
+): Promise<Response> {
   if (!import.meta.env.DEV) {
     return fetch(url, init);
   }
 
   const method = (init?.method ?? "GET").toUpperCase();
   const multipart = init?.body instanceof FormData;
-  logBrowserHttpRequest(method, multipart ? `${url}  multipart` : url);
+
+  logBrowserHttpRequest(
+    method,
+    multipart ? `${url}  multipart` : url
+  );
 
   try {
     const res = await fetch(url, init);
-    const text = await res.text();
+
+    // Leer una copia para no consumir el cuerpo original.
+    const responseForLog = res.clone();
+    const text = await responseForLog.text();
+
     if (res.ok) {
       logBrowserHttpResponse(method, url, res.status, text);
     } else {
-      const msg = text.trim().slice(0, 200) || res.statusText || "HTTP error";
+      const msg =
+        text.trim().slice(0, 200) ||
+        res.statusText ||
+        "HTTP error";
+
       logBrowserHttpError(method, url, res.status, msg, text);
     }
-    return new Response(text, {
-      status: res.status,
-      statusText: res.statusText,
-      headers: res.headers,
-    });
+
+    // Devolver la respuesta original, sin reconstruirla.
+    return res;
   } catch (e) {
-    if (e instanceof DOMException && e.name === "AbortError") throw e;
-    logBrowserHttpError(method, url, null, e instanceof Error ? e.message : String(e));
+    if (e instanceof DOMException && e.name === "AbortError") {
+      throw e;
+    }
+
+    logBrowserHttpError(
+      method,
+      url,
+      null,
+      e instanceof Error ? e.message : String(e)
+    );
+
     throw e;
   }
 }
+

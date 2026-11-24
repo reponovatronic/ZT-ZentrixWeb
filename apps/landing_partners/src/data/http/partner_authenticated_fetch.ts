@@ -34,8 +34,8 @@ export async function partnerAuthenticatedJson(
     res = await devLoggedFetch(url, {
       ...init,
       headers: {
-        ...partnerAuthHeaders(),
         ...(init?.headers ?? {}),
+        ...partnerAuthHeaders(),
       },
     });
   } catch (e) {

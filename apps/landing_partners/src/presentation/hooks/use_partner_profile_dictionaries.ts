@@ -23,9 +23,16 @@ export function usePartnerProfileDictionariesFromApi(): PartnerProfileDictionari
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+      if (import.meta.env.DEV) {
+    setBusinessTypes([]);
+    setLoading(false);
+    setError(null);
+    return;
+    }
     const ac = new AbortController();
     setLoading(true);
     setError(null);
+    
     void fetchMobileBusinessTypes(ac.signal)
       .then((rows) => {
         const typed: PartnerBusinessTypeOption[] = rows.map((r) => ({

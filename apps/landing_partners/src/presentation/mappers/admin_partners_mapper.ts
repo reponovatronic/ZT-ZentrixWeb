@@ -36,8 +36,8 @@ function numPart(j: Record<string, unknown>, ...keys: string[]): number | null {
     const v = j[key];
     if (typeof v === "number" && Number.isFinite(v)) return Math.trunc(v);
     if (typeof v === "string" && v.trim()) {
-      const n = Number.parseInt(v.trim(), 10);
-      if (Number.isFinite(n)) return n;
+      const n = Number(v.trim());
+      if (Number.isSafeInteger(n)) return n;
     }
   }
   return null;

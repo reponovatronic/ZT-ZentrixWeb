@@ -1,20 +1,61 @@
+
 :root {
   --hb-layout-max: 1120px;
-  --hb-red: #f4364c;
-  --hb-red-dark: #d92d42;
-  --hb-navy: white;
-  /** Design token: primary/primary-100 */
-  --hb-primary-100: #fff8f8;
-  /** Design token: surface/surface-01 */
-  --hb-surface-01: #122131;
-  /** Design tokens Figma: primary */
+
+  /* Colores principales */
+  --hb-red: #4CD7F6;
+  --hb-red-dark: #25b9dc;
+  --hb-navy: #f8fafc;
+
+  /* Paleta primary */
+  --hb-primary-50: #122131;
+  --hb-primary-100: #051424;
   --primary-primary-50: #122131;
   --primary-primary-100: #051424;
-  --hb-bg: var(--hb-primary-100);
-  --hb-badge-bg: #ffe8ea;
-  --wp-red: #f4364c;
-  --wp-navy: #1b2748;
-  --wp-bg: #f6f7fb;
+
+  /* Superficies */
+  --hb-surface-01: #0d1b2a;
+  --hb-surface-02: #102238;
+  --hb-surface-03: #162b40;
+
+  /* Fondos */
+  --hb-bg: #051424;
+  --hb-bg-secondary: #071026;
+  --hb-badge-bg: rgba(76, 215, 246, 0.12);
+
+  /* Acentos */
+  --hb-accent: #4CD7F6;
+  --hb-accent-hover: #7ce5fa;
+  --hb-accent-soft: rgba(76, 215, 246, 0.1);
+  --hb-accent-border: rgba(76, 215, 246, 0.25);
+
+  /* Textos */
+  --hb-text-primary: #f8fafc;
+  --hb-text-secondary: #cbd5e1;
+  --hb-text-muted: #94a3b8;
+  --hb-text-disabled: #64748b;
+
+  /* Bordes */
+  --hb-border: rgba(148, 163, 184, 0.16);
+  --hb-border-strong: rgba(148, 163, 184, 0.28);
+
+  /* Estados */
+  --hb-success: #22c55e;
+  --hb-warning: #f59e0b;
+  --hb-danger: #f87171;
+  --hb-info: #4CD7F6;
+
+  /* Sombras */
+  --hb-shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.15);
+  --hb-shadow-md: 0 8px 24px rgba(0, 0, 0, 0.25);
+  --hb-shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.35);
+
+  /* Compatibilidad con variables anteriores */
+  --wp-red: var(--hb-red);
+  --wp-navy: var(--hb-navy);
+  --wp-bg: var(--hb-bg);
+
+  /* Tipografía */
   --font: "DM Sans", system-ui, sans-serif;
 }
 
@@ -35,8 +76,8 @@ html {
 body {
   margin: 0;
   font-family: var(--font);
-  background: var(--primary-primary-100, #ca0014);
-  color: var(--hb-navy);
+  background: var(--hb-bg, #051424);
+  color: var(--hb-text-primary, #f8fafc);
   -webkit-font-smoothing: antialiased;
 }
 

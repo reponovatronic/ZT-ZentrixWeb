@@ -104,19 +104,19 @@ export function DashboardBagTypesChart({
         >
           <defs>
             <linearGradient id={barHi} x1="0" y1="1" x2="0" y2="0">
-              <stop offset="0%" stopColor="#f4364c" />
-              <stop offset="45%" stopColor="#ff6b7a" />
-              <stop offset="100%" stopColor="#ffc8ce" />
+              <stop offset="0%" stopColor="#0891b2" />
+              <stop offset="45%" stopColor="#4CD7F6" />
+              <stop offset="100%" stopColor="#b5f2ff" />
             </linearGradient>
             <linearGradient id={barMuted} x1="0" y1="1" x2="0" y2="0">
-              <stop offset="0%" stopColor="rgba(255, 107, 122, 0.55)" />
-              <stop offset="55%" stopColor="rgba(255, 200, 206, 0.5)" />
-              <stop offset="100%" stopColor="rgba(255, 235, 238, 0.35)" />
+              <stop offset="0%" stopColor="rgb(76, 215, 246)" />
+              <stop offset="55%" stopColor="rgba(76, 215, 246, 0.16)" />
+              <stop offset="100%" stopColor="rgba(76, 215, 246, 0.08)" />
             </linearGradient>
           </defs>
           <XAxis
             dataKey="name"
-            tick={{ fill: "rgba(27, 39, 72, 0.72)", fontSize: 10, fontWeight: 600 }}
+            tick={{ fill: "rgb(231, 235, 245)", fontSize: 10, fontWeight: 600 }}
             axisLine={false}
             tickLine={false}
             interval={0}

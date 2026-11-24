@@ -1,6 +1,7 @@
 import {
   categoryApiIdFromDraftId,
   PARTNER_PRODUCT_CATEGORIES,
+  type PartnerProductListRow,
 } from "@/domain/entities/partner_product";
 import {
   createPartnerProduct,
@@ -37,12 +38,10 @@ function fileNameHintFromUrl(url: string): string {
 export type PartnerProductFormModalProps = {
   open: boolean;
   onClose: () => void;
-  /** Si está definido, modo edición. */
   editingProductId: string | null;
-  /** Desde la fila de lista cuando el GET no trae categoría. */
+  editingProduct?: PartnerProductListRow | null;
   categoryApiIdHint: number | null;
-  onSaved: () => void;
-  /** Admin viendo otro socio: se añade `partner_id` en URLs compatibles. */
+  onSaved: (product?: PartnerProductListRow) => void;
   scopedPartnerId?: string;
 };
 
@@ -115,10 +114,31 @@ function validate(draft: FormDraft, isEdit: boolean): FieldErrors {
   return e;
 }
 
+function fileToDataUrl(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+
+    reader.onload = () => {
+      if (typeof reader.result === "string") {
+        resolve(reader.result);
+      } else {
+        reject(new Error("No se pudo procesar la imagen."));
+      }
+    };
+
+    reader.onerror = () => {
+      reject(new Error("No se pudo leer la imagen."));
+    };
+
+    reader.readAsDataURL(file);
+  });
+}
+
 export function PartnerProductFormModal({
   open,
   onClose,
   editingProductId,
+  editingProduct,
   categoryApiIdHint,
   onSaved,
   scopedPartnerId,
@@ -153,36 +173,106 @@ export function PartnerProductFormModal({
     setSubmitAttempted(false);
   }, []);
 
-  useEffect(() => {
-    if (!open) {
-      reset();
-      return;
-    }
-    if (!editingProductId) {
-      reset();
-      setLoadingEdit(false);
-      setLoadError(null);
-      return;
-    }
-    const ac = new AbortController();
-    setLoadingEdit(true);
+ useEffect(() => {
+  if (!open) {
+    reset();
+    setLoadingEdit(false);
+    return;
+  }
+
+  if (!editingProductId) {
+    reset();
+    setLoadingEdit(false);
     setLoadError(null);
-    void fetchProductForEdit(editingProductId, categoryApiIdHint, ac.signal, scopedPartnerId)
-      .then((p) => {
-        setDraft({
-          ...p,
-          imageFile: null,
-          availableDayNums:
-            p.availableDayNums.length > 0 ? p.availableDayNums : [1, 2, 3, 4, 5, 6, 7],
-        });
-      })
-      .catch((err: unknown) => {
-        if (err instanceof DOMException && err.name === "AbortError") return;
-        setLoadError(err instanceof Error ? err.message : "No se pudo cargar el producto.");
-      })
-      .finally(() => setLoadingEdit(false));
-    return () => ac.abort();
-  }, [open, editingProductId, categoryApiIdHint, scopedPartnerId, reset]);
+    return;
+  }
+
+  // DEV: cargar los datos desde el producto mock seleccionado.
+  if (import.meta.env.DEV) {
+    if (!editingProduct) {
+      setLoadError("No se encontró el producto seleccionado.");
+      setLoadingEdit(false);
+      return;
+    }
+
+    const priceFromLabel = (value: string): number | null => {
+      const parsed = Number(
+        value.replace(/[^\d,.-]/g, "").replace(",", ".")
+      );
+
+      return Number.isFinite(parsed) ? parsed : null;
+    };
+
+    const timeMatch = editingProduct.scheduleLabel.match(
+      /(\d{2}:\d{2})\s+a\s+(\d{2}:\d{2})/
+    );
+
+    setLoadingEdit(false);
+    setLoadError(null);
+
+    setDraft({
+      name: editingProduct.name,
+      description: editingProduct.description,
+      originalPrice: priceFromLabel(editingProduct.originalPriceLabel),
+      offerPrice: priceFromLabel(editingProduct.offerPriceLabel),
+      stock: Math.max(1, editingProduct.stockCount),
+      pickupStart: timeMatch?.[1] ?? "12:00",
+      pickupEnd: timeMatch?.[2] ?? "14:00",
+      categoryDraftId:
+        PARTNER_PRODUCT_CATEGORIES.find(
+          (c) => c.apiCategoryId === editingProduct.categoryApiId
+        )?.id ?? "",
+      existingImageUrl: editingProduct.imageUrl || null,
+      availableDayNums: [1, 2, 3, 4, 5, 6, 7],
+      onlyAtClosing: false,
+      imageFile: null,
+    });
+
+    return;
+  }
+
+  // PROD: conservar la consulta real.
+  const ac = new AbortController();
+
+  setLoadingEdit(true);
+  setLoadError(null);
+
+  void fetchProductForEdit(
+    editingProductId,
+    categoryApiIdHint,
+    ac.signal,
+    scopedPartnerId
+  )
+    .then((p) => {
+      setDraft({
+        ...p,
+        imageFile: null,
+        availableDayNums:
+          p.availableDayNums.length > 0
+            ? p.availableDayNums
+            : [1, 2, 3, 4, 5, 6, 7],
+      });
+    })
+    .catch((err: unknown) => {
+      if (err instanceof DOMException && err.name === "AbortError") return;
+
+      setLoadError(
+        err instanceof Error
+          ? err.message
+          : "No se pudo cargar el producto."
+      );
+    })
+    .finally(() => setLoadingEdit(false));
+
+  return () => ac.abort();
+}, [
+  open,
+  editingProductId,
+  editingProduct,
+  categoryApiIdHint,
+  scopedPartnerId,
+  reset,
+]);
 
   function toggleDay(n: number): void {
     setDraft((d) => {
@@ -219,48 +309,129 @@ export function PartnerProductFormModal({
   }
 
   async function handleSubmit(e: React.FormEvent): Promise<void> {
-    e.preventDefault();
-    setSubmitAttempted(true);
-    const errs = validate(draft, isEdit);
-    setFieldErrors(errs);
-    if (Object.keys(errs).length > 0) return;
+  e.preventDefault();
+  setSubmitAttempted(true);
 
-    const catId = categoryApiIdFromDraftId(draft.categoryDraftId);
-    if (catId == null) {
-      setFieldErrors({ category: "Elige una categoría de la lista." });
+  const errs = validate(draft, isEdit);
+  setFieldErrors(errs);
+
+  if (Object.keys(errs).length > 0) return;
+
+  const catId = categoryApiIdFromDraftId(draft.categoryDraftId);
+
+  if (catId == null) {
+    setFieldErrors({
+      category: "Elige una categoría de la lista.",
+    });
+    return;
+  }
+
+  setSubmitting(true);
+  setSubmitError(null);
+
+  try {
+    // DEV: guardar el producto en memoria, sin consultar la API.
+    if (import.meta.env.DEV) {
+      const imageUrl = draft.imageFile
+        ? await fileToDataUrl(draft.imageFile)
+        : editingProduct?.imageUrl ?? "";
+
+      const dayLabels = [
+        "Lun",
+        "Mar",
+        "Mié",
+        "Jue",
+        "Vie",
+        "Sáb",
+        "Dom",
+      ];
+
+      const selectedDays = [...draft.availableDayNums].sort(
+        (a, b) => a - b
+      );
+
+      const daysLabel =
+        selectedDays.length === 7
+          ? "Todos los días"
+          : selectedDays
+              .map((day) => dayLabels[day - 1])
+              .filter(Boolean)
+              .join(", ");
+
+      const discount =
+        draft.originalPrice! > draft.offerPrice!
+          ? Math.round(
+              (1 - draft.offerPrice! / draft.originalPrice!) * 100
+            )
+          : 0;
+
+      const savedProduct: PartnerProductListRow = {
+        id: isEdit && editingProductId
+          ? editingProductId
+          : `mock-prod-${crypto.randomUUID()}`,
+        name: draft.name.trim(),
+        description: draft.description.trim(),
+        imageUrl,
+        scheduleLabel: `${daysLabel} · ${draft.pickupStart} a ${draft.pickupEnd}`,
+        isActive: editingProduct?.isActive ?? true,
+        offerPriceLabel: `S/ ${draft.offerPrice!.toFixed(2)}`,
+        originalPriceLabel: `S/ ${draft.originalPrice!.toFixed(2)}`,
+        discountLabel: discount > 0 ? `-${discount}%` : "",
+        stockCount: draft.stock,
+        categoryApiId: catId,
+      };
+
+      onSaved(savedProduct);
+      onClose();
+      reset();
       return;
     }
 
-    setSubmitting(true);
-    setSubmitError(null);
-    try {
-      const payload = {
-        name: draft.name,
-        originalPrice: draft.originalPrice!,
-        offerPrice: draft.offerPrice!,
-        pickupStart: draft.pickupStart,
-        pickupEnd: draft.pickupEnd,
-        stock: draft.stock,
-        categoryApiId: catId,
-        availableDaysJson: encodeAvailableDaysForApi(draft.availableDayNums),
-        description: draft.description,
-        imageFile: draft.imageFile,
-        existingImageUrl: draft.existingImageUrl,
-      };
-      if (isEdit && editingProductId) {
-        await updatePartnerProduct(editingProductId, payload, undefined, scopedPartnerId);
-      } else {
-        await createPartnerProduct(payload, undefined, scopedPartnerId);
-      }
-      onSaved();
-      onClose();
-      reset();
-    } catch (err: unknown) {
-      setSubmitError(err instanceof Error ? err.message : "Error al guardar.");
-    } finally {
-      setSubmitting(false);
+    // PROD: conservar el comportamiento actual mediante API.
+    const payload = {
+      name: draft.name,
+      originalPrice: draft.originalPrice!,
+      offerPrice: draft.offerPrice!,
+      pickupStart: draft.pickupStart,
+      pickupEnd: draft.pickupEnd,
+      stock: draft.stock,
+      categoryApiId: catId,
+      availableDaysJson: encodeAvailableDaysForApi(
+        draft.availableDayNums
+      ),
+      description: draft.description,
+      imageFile: draft.imageFile,
+      existingImageUrl: draft.existingImageUrl,
+    };
+
+    if (isEdit && editingProductId) {
+      await updatePartnerProduct(
+        editingProductId,
+        payload,
+        undefined,
+        scopedPartnerId
+      );
+    } else {
+      await createPartnerProduct(
+        payload,
+        undefined,
+        scopedPartnerId
+      );
     }
+
+    onSaved();
+    onClose();
+    reset();
+  } catch (err: unknown) {
+    setSubmitError(
+      err instanceof Error
+        ? err.message
+        : "Error al guardar."
+    );
+  } finally {
+    setSubmitting(false);
   }
+}
 
   if (!open) return null;
 

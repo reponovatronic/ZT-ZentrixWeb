@@ -1,6 +1,8 @@
 import { AdminOrdersRepositoryImpl } from "@/data/repositories/admin_orders_repository_impl";
-import type { AdminOrderListItem } from "@/domain/entities/admin_order";
-import { OrdersEmptyState } from "@/presentation/components/common/orders_empty_state";
+import type {
+  AdminOrderDetail,
+  AdminOrderListItem,
+} from "@/domain/entities/admin_order";
 import { PartnerOrderDetailModal } from "@/presentation/components/partners/partner_order_detail_modal";
 import { useAdminOrdersList } from "@/presentation/hooks/use_admin_orders_list";
 import { usePartnerDashboardFilters } from "@/presentation/hooks/use_partner_dashboard_filters";
@@ -14,7 +16,7 @@ import {
 import { useDownloadReportModal } from "@/presentation/contexts/download_report_modal_context";
 import { resolvePartnerIdQuery } from "@/presentation/utils/dashboard_query_utils";
 import { useCallback, useEffect, useMemo, useState } from "react";
-
+import { OrdersEmptyState } from "@/presentation/components/common/orders_empty_state";
 const PAGE_SIZE = 20;
 const ordersRepo = new AdminOrdersRepositoryImpl();
 
@@ -28,7 +30,61 @@ const STATUS_CARDS: Array<{
   { label: "Recogida", apiStatus: "DELIVERED" },
   { label: "Cancelada", apiStatus: "CANCELLED" },
 ];
+const MOCK_PROGRESS_STEPS = [
+  { key: "created", label: "Orden recibida" },
+  { key: "paid", label: "Pago confirmado" },
+  { key: "ready", label: "Lista para recoger" },
+  { key: "delivered", label: "Orden recogida" },
+];
 
+function buildMockOrderDetail(order: AdminOrderListItem): AdminOrderDetail {
+  const statusStep: Record<string, number> = {
+    PENDING_PAYMENT: 0,
+    PAID: 1,
+    PREPARING: 1,
+    READY: 2,
+    DELIVERED: 3,
+    CANCELLED: 0,
+  };
+
+  const activeStep = statusStep[order.status] ?? 0;
+  const total = order.total;
+
+  return {
+    orderId: order.orderId,
+    orderCode: order.orderCode,
+    createdAtLabel: order.createdAt,
+    paymentMethod: "Pago de prueba",
+    status: order.status,
+    statusLabel: order.statusLabel,
+    subtotal: total,
+    savings: 0,
+    total,
+    subtotalDisplay: order.totalDisplay,
+    savingsDisplay: "S/0.00",
+    totalDisplay: order.totalDisplay,
+    pickupWindow: order.pickupWindow,
+    pickupNote: "Este es un detalle de prueba generado localmente.",
+    products: [
+      {
+        id: order.orderId,
+        name: order.productLabel,
+        price: total,
+        priceDisplay: order.totalDisplay,
+        status: order.status,
+        statusLabel: order.statusLabel,
+        storeName: "Happy Bags",
+        pickupWindow: order.pickupWindow,
+        imageUrl: null,
+      },
+    ],
+    progressSteps: MOCK_PROGRESS_STEPS.map((step, index) => ({
+      ...step,
+      done: index < activeStep,
+      active: index === activeStep,
+    })),
+  };
+}
 function IconSearch() {
   return (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
@@ -175,7 +231,10 @@ export function PartnerOrdersMainPane({
 
   const applyStatusChange = useCallback(
     async (payload: { status: string; notes: string }) => {
-      if (!detail) return;
+  // Las órdenes mock no deben actualizarse en el backend.
+    if (import.meta.env.DEV) return;
+
+    if (!detail) return;
       setActionBusy(true);
       setActionError(null);
       try {
@@ -198,28 +257,57 @@ export function PartnerOrdersMainPane({
     [detail, refreshDetail]
   );
 
-  const openDetail = useCallback(
-    async (orderId: number) => {
-      const pid = resolvePartnerIdQuery(partnerId);
-      if (isPortalAdminApiMode() && !pid) return;
+  
+const openDetail = useCallback(
+  async (orderId: number) => {
+    // DEV: abrir detalle ficticio sin consultar la API.
+    if (import.meta.env.DEV) {
+      const selectedOrder = data?.items.find(
+        (order) => order.orderId === orderId
+      );
+
       setDetailOpen(true);
-      setDetailLoading(true);
+      setDetailLoading(false);
       setDetailError(null);
       setActionError(null);
-      setDetail(null);
-      try {
-        const d = await ordersRepo.fetchOrderDetail(orderId, pid ?? 0);
-        setDetail(d);
-      } catch (e: unknown) {
-        setDetailError(
-          e instanceof Error ? e.message : "No se pudo cargar el detalle."
-        );
-      } finally {
-        setDetailLoading(false);
+
+      if (!selectedOrder) {
+        setDetail(null);
+        setDetailError("No se encontró la orden de prueba.");
+        return;
       }
-    },
-    [partnerId]
-  );
+
+      setDetail(buildMockOrderDetail(selectedOrder));
+      return;
+    }
+
+    // PROD: conservar la consulta real.
+    const pid = resolvePartnerIdQuery(partnerId);
+
+    if (isPortalAdminApiMode() && !pid) return;
+
+    setDetailOpen(true);
+    setDetailLoading(true);
+    setDetailError(null);
+    setActionError(null);
+    setDetail(null);
+
+    try {
+      const d = await ordersRepo.fetchOrderDetail(orderId, pid ?? 0);
+      setDetail(d);
+    } catch (e: unknown) {
+      setDetailError(
+        e instanceof Error
+          ? e.message
+          : "No se pudo cargar el detalle."
+      );
+    } finally {
+      setDetailLoading(false);
+    }
+  },
+  [partnerId, data]
+);
+
 
   const items = data?.items ?? [];
   const showEmpty = !loading && !error && items.length === 0;
@@ -418,8 +506,16 @@ export function PartnerOrdersMainPane({
         actionBusy={actionBusy}
         actionError={actionError}
         onClose={() => setDetailOpen(false)}
-        onAccept={() => void applyStatusChange(acceptOrderStatusPayload())}
-        onReject={() => void applyStatusChange(rejectOrderStatusPayload())}
+        onAccept={
+          import.meta.env.DEV
+            ? undefined
+            : () => void applyStatusChange(acceptOrderStatusPayload())
+        }
+        onReject={
+          import.meta.env.DEV
+            ? undefined
+            : () => void applyStatusChange(rejectOrderStatusPayload())
+        }
       />
     </div>
   );

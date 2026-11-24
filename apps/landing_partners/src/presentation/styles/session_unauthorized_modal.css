@@ -1,3 +1,4 @@
+
 /* Modal sesión expirada / 401 */
 
 .ps-session-modal-root {
@@ -8,13 +9,13 @@
   align-items: center;
   justify-content: center;
   padding: 1.25rem;
-  font-family: "Montserrat", "DM Sans", system-ui, sans-serif;
+  font-family: var(--font, "DM Sans", system-ui, sans-serif);
 }
 
 .ps-session-modal-backdrop {
   position: absolute;
   inset: 0;
-  background: rgba(27, 39, 72, 0.55);
+  background: rgba(3, 9, 22, 0.76);
   backdrop-filter: blur(4px);
 }
 
@@ -22,17 +23,18 @@
   position: relative;
   z-index: 1;
   width: min(100%, 400px);
+  border: 1px solid var(--hb-border, rgba(148, 163, 184, 0.16));
   border-radius: 16px;
   padding: 1.75rem 1.5rem;
-  background: #fff;
-  box-shadow: 0 18px 48px rgba(27, 39, 72, 0.2);
+  background: var(--hb-surface-01, #0d1b2a);
+  box-shadow: var(--hb-shadow-lg, 0 16px 48px rgba(0, 0, 0, 0.35));
 }
 
 .ps-session-modal-card h2 {
   margin: 0 0 0.75rem;
   font-size: 1.25rem;
   font-weight: 800;
-  color: #1b2748;
+  color: var(--hb-text-primary, #f8fafc);
   letter-spacing: -0.02em;
 }
 
@@ -40,7 +42,7 @@
   margin: 0 0 1.25rem;
   font-size: 0.95rem;
   line-height: 1.5;
-  color: #3d4a63;
+  color: var(--hb-text-secondary, #cbd5e1);
 }
 
 .ps-session-modal-actions {
@@ -50,22 +52,40 @@
 
 .ps-session-modal-actions button {
   width: 100%;
-  border: none;
+  border: 1px solid var(--hb-accent, #4CD7F6);
   border-radius: 999px;
   padding: 0.85rem 1.25rem;
   font-size: 0.95rem;
   font-weight: 700;
   font-family: inherit;
   cursor: pointer;
-  background: #f4364c;
-  color: #fff;
+  background: var(--hb-accent, #4CD7F6);
+  color: #051424;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
 }
 
 .ps-session-modal-actions button:focus-visible {
-  outline: 2px solid #1b2748;
-  outline-offset: 2px;
+  outline: 2px solid var(--hb-accent, #4CD7F6);
+  outline-offset: 3px;
 }
 
 .ps-session-modal-actions button:hover {
-  filter: brightness(1.03);
+  background: var(--hb-accent-hover, #7ce5fa);
+  border-color: var(--hb-accent-hover, #7ce5fa);
+  box-shadow: 0 0 18px rgba(76, 215, 246, 0.16);
+}
+
+.ps-session-modal-actions button:active {
+  transform: translateY(1px);
+}
+
+.ps-session-modal-actions button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }

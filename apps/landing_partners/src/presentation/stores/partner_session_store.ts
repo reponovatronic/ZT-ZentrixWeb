@@ -23,14 +23,39 @@ type PartnerSessionActions = {
   signInWithEmailPassword: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
 };
-
-const initial: PartnerSessionState = {
-  status: "idle",
-  partner: null,
-  error: null,
-  signInBusy: false,
-  signInError: null,
+// Mantener aquí todas tus validaciones actuales...
+// const initial: PartnerSessionState = {
+//   status: "idle",
+//   partner: null,
+//   error: null,
+//   signInBusy: false,
+//   signInError: null,
+// };
+// Mantener aquí todas tus validaciones actuales...
+const DEV_MOCK_PARTNER: Partner = {
+  id: "dev-partner-id",
+  displayName: "Socio de prueba",
+  email: "dev@local.test",
+  photoUrl: "",
+  role: "partner",
 };
+
+const initial: PartnerSessionState = import.meta.env.DEV
+  ? {
+      status: "ready",
+      partner: DEV_MOCK_PARTNER,
+      error: null,
+      signInBusy: false,
+      signInError: null,
+    }
+  : {
+      status: "idle",
+      partner: null,
+      error: null,
+      signInBusy: false,
+      signInError: null,
+    };
+// Mantener aquí todas tus validaciones actuales...
 
 const PORTAL_ROLE_DENIED_MESSAGE = "Acceso no autorizado.";
 
@@ -38,8 +63,21 @@ function buildStore(repo: PartnerAuthRepository) {
   return create<PartnerSessionState & PartnerSessionActions>((set) => ({
     ...initial,
     refreshSession: async (options?: { silent?: boolean }) => {
+      // En desarrollo, mantener la sesión simulada sin consultar el backend.
+      if (import.meta.env.DEV) {
+        set({
+          status: "ready",
+          partner: DEV_MOCK_PARTNER,
+          error: null,
+        });
+        return;
+      }
       const silent = options?.silent === true;
-      if (!silent) set({ status: "loading", error: null });
+
+      if (!silent) {
+        set({ status: "loading", error: null });
+      }
+
       try {
         let partner = await repo.getSession();
         if (partner && !isPartnerPortalAllowedRole(partner.role)) {
@@ -87,12 +125,27 @@ function buildStore(repo: PartnerAuthRepository) {
       }
     },
     signOut: async () => {
+  try {
+    // En producción se ejecuta el cierre de sesión real.
+    if (!import.meta.env.DEV) {
       await repo.signOut();
-      useAdminPartnerViewStore.getState().clearViewedPartner();
-      set(initial);
-    },
-  }));
-}
+    }
+  } finally {
+    clearPartnerAuthSession();
 
+    useAdminPartnerViewStore.getState().clearViewedPartner();
+
+    // Limpiar la sesión local tanto en DEV como en producción.
+    set({
+      status: "idle",
+      partner: null,
+      error: null,
+      signInBusy: false,
+      signInError: null,
+    });
+  }
+},
+}));
+}
 const defaultRepo = new PartnerAuthRepositoryImpl();
 export const usePartnerSessionStore = buildStore(defaultRepo);

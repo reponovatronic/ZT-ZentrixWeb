@@ -15,8 +15,14 @@ import {
   resolveMetricsBagDistribution,
   resolveMonthlySalesForChart,
 } from "./chart_series";
+// import {
+//   buildEmptyMetricsDataset,
+//   type MetricsRangeId,
+// } from "./metrics_mock_data";
 import {
   buildEmptyMetricsDataset,
+  buildMetricsDataset,
+  type MetricsDataset,
   type MetricsRangeId,
 } from "./metrics_mock_data";
 import { SalesLineChart } from "./sales_line_chart";
@@ -101,21 +107,50 @@ export function PartnerMetricsPane({
   const barHi = `pd-mx-bar-hi-${uid}`;
   const barMuted = `pd-mx-bar-muted-${uid}`;
 
-  const emptyFallback = useMemo(
-    () => buildEmptyMetricsDataset(rangeId),
-    [rangeId]
-  );
 
-  const { kpis, monthly, bags, salesSubtitle } = useMemo(() => {
-    if (loading || !dataset) {
-      return emptyFallback;
-    }
-    return {
-      ...dataset,
-      monthly: resolveMonthlySalesForChart(dataset.monthly, false),
-      bags: resolveMetricsBagDistribution(dataset.bags, false),
-    };
-  }, [loading, dataset, emptyFallback]);
+  //
+  // const emptyFallback = useMemo(
+  //   () => buildEmptyMetricsDataset(rangeId),
+  //   [rangeId]
+  // );
+
+  // const { kpis, monthly, bags, salesSubtitle } = useMemo(() => {
+  //   if (loading || !dataset) {
+  //     return emptyFallback;
+  //   }
+  //   return {
+  //     ...dataset,
+  //     monthly: resolveMonthlySalesForChart(dataset.monthly, false),
+  //     bags: resolveMetricsBagDistribution(dataset.bags, false),
+  //   };
+  // }, [loading, dataset, emptyFallback]);
+  //
+  const devDataset = useMemo(
+  () =>
+    import.meta.env.DEV
+      ? buildMetricsDataset(rangeId, customRange)
+      : undefined,
+  [rangeId, customRange]
+);
+
+const emptyFallback = useMemo(
+  () => buildEmptyMetricsDataset(rangeId),
+  [rangeId]
+);
+
+const activeDataset = dataset ?? devDataset;
+
+const { kpis, monthly, bags, salesSubtitle } = useMemo(() => {
+  if (loading || !activeDataset) {
+    return emptyFallback;
+  }
+
+  return {
+    ...activeDataset,
+    monthly: resolveMonthlySalesForChart(activeDataset.monthly, false),
+    bags: resolveMetricsBagDistribution(activeDataset.bags, false),
+  };
+}, [loading, activeDataset, emptyFallback]);
 
   const salesLineData = monthly.map((d) => ({
     label: d.month,
@@ -185,18 +220,21 @@ export function PartnerMetricsPane({
                 margin={{ top: 36, right: 8, left: 8, bottom: 4 }}
                 barCategoryGap="18%"
               >
-                <defs>
-                  <linearGradient id={barHi} x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#f4364c" />
-                    <stop offset="45%" stopColor="#ff6b7a" />
-                    <stop offset="100%" stopColor="#ffc8ce" />
-                  </linearGradient>
-                  <linearGradient id={barMuted} x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="rgba(255, 200, 206, 0.72)" />
-                    <stop offset="55%" stopColor="rgba(255, 214, 218, 0.45)" />
-                    <stop offset="100%" stopColor="rgba(255, 242, 243, 0.2)" />
-                  </linearGradient>
-                </defs>
+                
+              <defs>
+                <linearGradient id={barHi} x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#0891b2" />
+                  <stop offset="45%" stopColor="#4CD7F6" />
+                  <stop offset="100%" stopColor="#b5f2ff" />
+                </linearGradient>
+
+                <linearGradient id={barMuted} x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="rgba(76, 215, 246, 0.55)" />
+                  <stop offset="55%" stopColor="rgba(76, 215, 246, 0.28)" />
+                  <stop offset="100%" stopColor="rgba(181, 242, 255, 0.12)" />
+                </linearGradient>
+              </defs>
+
                 <XAxis
                   dataKey="name"
                   tick={(props) => {
@@ -206,7 +244,7 @@ export function PartnerMetricsPane({
                     );
                     const lines = row?.label.split("\n") ?? [String(payload.value)];
                     return (
-                      <text x={x} y={y} textAnchor="middle" fill="#061d22" fontSize={11}>
+                      <text x={x} y={y} textAnchor="middle" fill="#f0fcff" fontSize={11}>
                         {lines.map((line, i) => (
                           <tspan key={i} x={x} dy={i === 0 ? 12 : 14}>
                             {line}

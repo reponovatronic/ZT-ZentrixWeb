@@ -20,7 +20,36 @@ import { type FormEvent, useCallback, useEffect, useRef, useState } from "react"
 const profileRepo = new PartnerProfileRepositoryImpl();
 const bankAccountRepo = new PartnerBankAccountRepositoryImpl();
 const MAX_PROFILE_PHOTO_BYTES = 5 * 1024 * 1024;
-
+////
+  const DEV_MOCK_PARTNER_PROFILE: PartnerProfile = {
+  id: "dev-partner-id",
+  photoUrl: "",
+  businessName: "Happy Bags Demo",
+  businessType: "Tienda de accesorios",
+  businessTypeIdRaw: "",
+  email: "dev@local.test",
+  phone: "999999999",
+  address: "Av. Demo 123",
+  districtIdRaw: "",
+  departmentIdRaw: "",
+  latitudeRaw: "",
+  longitudeRaw: "",
+  description: "Negocio de prueba para visualizar el perfil del socio.",
+  openingTime: "09:00",
+  closingTime: "18:00",
+  statusLabel: "Activo",
+  memberSinceLabel: "Enero 2025",
+  ordersTotalDisplay: "24",
+  receiveOrders: true,
+  notificationsEnabled: true,
+  visibleOnMap: true,
+  banking: null,
+  bankAccountPersisted: false,
+  bankName: "",
+  bankAccountNumber: "",
+  bankCci: "",
+  bankHolder: "",
+};
 export type PartnerProfileMainPaneProps = {
   onSidebarProfile: (
     peek: Pick<PartnerProfile, "businessName" | "businessType">
@@ -53,10 +82,36 @@ export function PartnerProfileMainPane({ onSidebarProfile }: PartnerProfileMainP
     const ac = new AbortController();
     let alive = true;
     setLoadError(null);
-    void (async () => {
-      let p: PartnerProfile;
-      try {
-        p = await profileRepo.fetchMe(ac.signal);
+      // void (async () => {
+      // let p: PartnerProfile;
+      // try {
+      //   p = await profileRepo.fetchMe(ac.signal);
+      void (async () => {
+  if (import.meta.env.DEV) {
+    const sessionEmail =
+      usePartnerSessionStore.getState().partner?.email?.trim() ?? "";
+
+    const profile: PartnerProfile = {
+      ...DEV_MOCK_PARTNER_PROFILE,
+      email: sessionEmail || DEV_MOCK_PARTNER_PROFILE.email,
+    };
+
+    if (!alive) return;
+
+    setDraft(profile);
+
+    onSidebarProfile({
+      businessName: profile.businessName,
+      businessType: profile.businessType,
+    });
+
+    return;
+  }
+
+  let p: PartnerProfile;
+
+  try {
+    p = await profileRepo.fetchMe(ac.signal);
       } catch (e: unknown) {
         if (e instanceof DOMException && e.name === "AbortError") return;
         if (isSessionUnauthorizedError(e)) return;
@@ -167,10 +222,30 @@ export function PartnerProfileMainPane({ onSidebarProfile }: PartnerProfileMainP
       return false;
     }
 
+    // setBusy(true);
+    // setBanner(null);
+    // try {
+    //   const updated = await profileRepo.updateMe(draft);
     setBusy(true);
-    setBanner(null);
-    try {
-      const updated = await profileRepo.updateMe(draft);
+setBanner(null);
+
+try {
+  if (import.meta.env.DEV) {
+    onSidebarProfile({
+      businessName: draft.businessName,
+      businessType: draft.businessType,
+    });
+
+    setBanner({
+      kind: "ok",
+      text: "Cambios del negocio guardados localmente (modo desarrollo).",
+    });
+
+    return true;
+  }
+
+  const updated = await profileRepo.updateMe(draft);
+  //
       setDraft((prev) =>
         prev
           ? {
@@ -217,72 +292,102 @@ export function PartnerProfileMainPane({ onSidebarProfile }: PartnerProfileMainP
     await persistProfile("Cambios del negocio guardados.");
   }
 
-  async function uploadPhoto(file: File): Promise<void> {
-    if (!draft || photoUploadBusy) return;
+  
+async function uploadPhoto(file: File): Promise<void> {
+  if (!draft || photoUploadBusy) return;
 
-    const mimeOk =
-      /^image\/(jpeg|png)$/i.test(file.type) ||
-      (file.type === "" && /\.(jpe?g|png)$/i.test(file.name));
-    if (!mimeOk) {
-      setBanner({ kind: "err", text: "La foto debe ser JPG o PNG." });
+  const mimeOk =
+    /^image\/(jpeg|png)$/i.test(file.type) ||
+    (file.type === "" && /\.(jpe?g|png)$/i.test(file.name));
+
+  if (!mimeOk) {
+    setBanner({ kind: "err", text: "La foto debe ser JPG o PNG." });
+    return;
+  }
+
+  if (file.size > MAX_PROFILE_PHOTO_BYTES) {
+    setBanner({ kind: "err", text: "La foto no puede superar 5 MB." });
+    return;
+  }
+
+  const previousPhotoUrl = draft.photoUrl;
+
+  if (photoPreviewUrlRef.current) {
+    URL.revokeObjectURL(photoPreviewUrlRef.current);
+    photoPreviewUrlRef.current = null;
+  }
+
+  const previewUrl = URL.createObjectURL(file);
+  photoPreviewUrlRef.current = previewUrl;
+
+  patchDraft({ photoUrl: previewUrl });
+
+  setPhotoUploadBusy(true);
+  setBanner(null);
+
+  try {
+    if (import.meta.env.DEV) {
+      setBanner({
+        kind: "ok",
+        text: "Foto de perfil actualizada localmente (modo desarrollo).",
+      });
       return;
     }
-    if (file.size > MAX_PROFILE_PHOTO_BYTES) {
-      setBanner({ kind: "err", text: "La foto no puede superar 5 MB." });
-      return;
-    }
 
-    const previousPhotoUrl = draft.photoUrl;
+    const updated = await profileRepo.uploadPhoto(file);
+
+    setDraft((prev) =>
+      prev
+        ? {
+            ...updated,
+            bankAccountPersisted: prev.bankAccountPersisted,
+            bankAccountNumber: prev.bankAccountNumber,
+            bankCci: prev.bankCci,
+            bankHolder: prev.bankHolder,
+            bankName: prev.bankName,
+          }
+        : updated
+    );
+
     if (photoPreviewUrlRef.current) {
       URL.revokeObjectURL(photoPreviewUrlRef.current);
       photoPreviewUrlRef.current = null;
     }
-    const previewUrl = URL.createObjectURL(file);
-    photoPreviewUrlRef.current = previewUrl;
-    patchDraft({ photoUrl: previewUrl });
 
-    setPhotoUploadBusy(true);
-    setBanner(null);
-    try {
-      const updated = await profileRepo.uploadPhoto(file);
-      setDraft((prev) =>
-        prev
-          ? {
-              ...updated,
-              bankAccountPersisted: prev.bankAccountPersisted,
-              bankAccountNumber: prev.bankAccountNumber,
-              bankCci: prev.bankCci,
-              bankHolder: prev.bankHolder,
-              bankName: prev.bankName,
-            }
-          : updated
-      );
-      if (photoPreviewUrlRef.current) {
-        URL.revokeObjectURL(photoPreviewUrlRef.current);
-        photoPreviewUrlRef.current = null;
-      }
-      mergeStoredPartnerJson((prev) => ({
-        ...prev,
-        photo_url: updated.photoUrl,
-        photoUrl: updated.photoUrl,
-      }));
-      await refreshSession({ silent: true });
-      setBanner({ kind: "ok", text: "Foto de perfil actualizada." });
-    } catch (e) {
-      if (isSessionUnauthorizedError(e)) return;
-      if (photoPreviewUrlRef.current) {
-        URL.revokeObjectURL(photoPreviewUrlRef.current);
-        photoPreviewUrlRef.current = null;
-      }
-      patchDraft({ photoUrl: previousPhotoUrl });
-      setBanner({
-        kind: "err",
-        text: e instanceof Error ? e.message : "No se pudo subir la foto de perfil.",
-      });
-    } finally {
-      setPhotoUploadBusy(false);
+    mergeStoredPartnerJson((prev) => ({
+      ...prev,
+      photo_url: updated.photoUrl,
+      photoUrl: updated.photoUrl,
+    }));
+
+    await refreshSession({ silent: true });
+
+    setBanner({
+      kind: "ok",
+      text: "Foto de perfil actualizada.",
+    });
+  } catch (e: unknown) {
+    if (isSessionUnauthorizedError(e)) return;
+
+    if (photoPreviewUrlRef.current) {
+      URL.revokeObjectURL(photoPreviewUrlRef.current);
+      photoPreviewUrlRef.current = null;
     }
+
+    patchDraft({ photoUrl: previousPhotoUrl });
+
+    setBanner({
+      kind: "err",
+      text:
+        e instanceof Error
+          ? e.message
+          : "No se pudo subir la foto de perfil.",
+    });
+  } finally {
+    setPhotoUploadBusy(false);
   }
+}
+
 
   async function submitBanking(ev: FormEvent) {
     ev.preventDefault();
@@ -297,11 +402,38 @@ export function PartnerProfileMainPane({ onSidebarProfile }: PartnerProfileMainP
       setBanner({ kind: "err", text: digitsCheck.message });
       return;
     }
+    // const { accountDigits, cciDigits } = digitsCheck;
+    // setBusy(true);
+    // setBanner(null);
+    // try {
+    //   await bankAccountRepo.save(
     const { accountDigits, cciDigits } = digitsCheck;
-    setBusy(true);
-    setBanner(null);
-    try {
-      await bankAccountRepo.save(
+
+setBusy(true);
+setBanner(null);
+
+try {
+  if (import.meta.env.DEV) {
+    setDraft((d) =>
+      d
+        ? {
+            ...d,
+            bankAccountPersisted: true,
+            bankAccountNumber: accountDigits,
+            bankCci: cciDigits,
+          }
+        : d
+    );
+
+    setBanner({
+      kind: "ok",
+      text: "Cuenta bancaria guardada localmente (modo desarrollo).",
+    });
+
+    return;
+  }
+
+  await bankAccountRepo.save(
         {
           hasPersistedAccount: bankAccountPersisted,
           bankId: 1,
@@ -422,4 +554,5 @@ export function PartnerProfileMainPane({ onSidebarProfile }: PartnerProfileMainP
       />
     </div>
   );
+ 
 }

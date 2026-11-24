@@ -1,3 +1,4 @@
+
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { isSessionUnauthorizedError } from "@/data/auth/session_unauthorized_error";
 import { AdminDashboardMetricsRepositoryImpl } from "@/data/repositories/admin_dashboard_metrics_repository_impl";
@@ -35,32 +36,50 @@ export function usePartnerDashboardMetrics(partnerId: string | undefined) {
   const load = useCallback(
     async (signal: AbortSignal) => {
       const adminMode = isPortalAdminApiMode();
-      if (adminMode && !adminViewHydrated) return;
       const pid = resolvePartnerIdQuery(partnerId);
+
+      // Evita conservar datos del socio consultado anteriormente.
+      setMetrics(null);
+      setError(null);
+
+      if (adminMode && !adminViewHydrated) {
+        setLoading(false);
+        return;
+      }
+
       if (adminMode && !pid) {
-        setMetrics(null);
+        setLoading(false);
         setError("No se encontró el identificador del socio.");
         return;
       }
+
       setLoading(true);
-      setError(null);
+
       try {
         const data = await metricsRepo.fetchMetrics({
-          partnerId: pid ?? 0,
+          partnerId: pid ?? undefined,
           dateFrom: dateQuery.dateFrom,
           dateTo: dateQuery.dateTo,
           signal,
         });
-        setMetrics(data);
+
+        if (!signal.aborted) {
+          setMetrics(data);
+        }
       } catch (e: unknown) {
         if (e instanceof DOMException && e.name === "AbortError") return;
         if (isSessionUnauthorizedError(e)) return;
-        setMetrics(null);
-        setError(
-          e instanceof Error ? e.message : "No se pudieron cargar las métricas."
-        );
+
+        if (!signal.aborted) {
+          setMetrics(null);
+          setError(
+            e instanceof Error ? e.message : "No se pudieron cargar las métricas."
+          );
+        }
       } finally {
-        if (!signal.aborted) setLoading(false);
+        if (!signal.aborted) {
+          setLoading(false);
+        }
       }
     },
     [partnerId, dateQuery.dateFrom, dateQuery.dateTo, adminViewHydrated]
@@ -69,6 +88,7 @@ export function usePartnerDashboardMetrics(partnerId: string | undefined) {
   useEffect(() => {
     const ac = new AbortController();
     void load(ac.signal);
+
     return () => ac.abort();
   }, [load]);
 

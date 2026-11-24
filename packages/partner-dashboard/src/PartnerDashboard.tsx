@@ -467,7 +467,7 @@ export function PartnerDashboard({
                       orders.map((row) => (
                       <tr key={row.id}>
                         <td>
-                          <input type="checkbox" disabled aria-label={`Seleccionar ${row.id}`} />
+                          <input type="checkbox" aria-label={`Seleccionar ${row.id}`} />
                         </td>
                         <td>{row.id}</td>
                         <td>

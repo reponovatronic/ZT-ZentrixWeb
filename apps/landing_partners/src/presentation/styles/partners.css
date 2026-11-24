@@ -1,7 +1,10 @@
+
 .wp-shell {
   min-height: 100vh;
   padding: 1.25rem clamp(1rem, 4vw, 2rem);
-  background: var(--wp-bg);
+  background: var(--wp-bg, #051424);
+  color: var(--hb-text-primary, #f8fafc);
+  font-family: var(--font, "DM Sans", system-ui, sans-serif);
 }
 
 .wp-top {
@@ -21,12 +24,20 @@
 
 .wp-link {
   font-weight: 600;
-  color: var(--wp-red);
+  color: var(--hb-accent, #4CD7F6);
   text-decoration: none;
+  transition: color 0.2s ease;
 }
 
 .wp-link:hover {
+  color: var(--hb-accent-hover, #7ce5fa);
   text-decoration: underline;
+}
+
+.wp-link:focus-visible {
+  outline: 2px solid var(--hb-accent, #4CD7F6);
+  outline-offset: 4px;
+  border-radius: 3px;
 }
 
 button.wp-btn-text {
@@ -34,7 +45,19 @@ button.wp-btn-text {
   background: none;
   padding: 0;
   font: inherit;
+  color: var(--hb-accent, #4CD7F6);
   cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+button.wp-btn-text:hover {
+  color: var(--hb-accent-hover, #7ce5fa);
+}
+
+button.wp-btn-text:focus-visible {
+  outline: 2px solid var(--hb-accent, #4CD7F6);
+  outline-offset: 4px;
+  border-radius: 3px;
 }
 
 .wp-main {
@@ -45,28 +68,32 @@ button.wp-btn-text {
 .wp-main h1 {
   margin: 0 0 0.5rem;
   font-size: 1.75rem;
+  color: var(--hb-text-primary, #f8fafc);
 }
 
 .wp-lead {
   margin: 0 0 1.5rem;
+  color: var(--hb-text-secondary, #cbd5e1);
   opacity: 0.9;
   line-height: 1.5;
 }
 
 .wp-card {
-  background: #fff;
+  background: var(--hb-surface-01, #0d1b2a);
+  border: 1px solid var(--hb-border, rgba(148, 163, 184, 0.16));
   border-radius: 16px;
   padding: 1.5rem;
-  box-shadow: 0 8px 30px rgba(27, 39, 72, 0.06);
+  box-shadow: var(--hb-shadow-md, 0 8px 24px rgba(0, 0, 0, 0.25));
 }
 
 .wp-card h2 {
   margin: 0 0 1rem;
   font-size: 1.1rem;
+  color: var(--hb-text-primary, #f8fafc);
 }
 
 .wp-error {
-  color: #b00020;
+  color: var(--hb-danger, #f87171);
 }
 
 .wp-btn {
@@ -78,14 +105,37 @@ button.wp-btn-text {
   border-radius: 10px;
   font-weight: 600;
   font-size: 0.9rem;
-  border: 2px solid var(--wp-navy);
-  background: #fff;
-  color: var(--wp-navy);
+  font-family: inherit;
+  border: 2px solid var(--hb-border-strong, rgba(148, 163, 184, 0.28));
+  background: var(--hb-surface-02, #102238);
+  color: var(--hb-text-primary, #f8fafc);
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease;
 }
 
 .wp-btn:hover {
-  background: var(--wp-navy);
-  color: #fff;
+  background: var(--hb-surface-03, #162b40);
+  border-color: var(--hb-accent, #4CD7F6);
+  color: var(--hb-accent, #4CD7F6);
+}
+
+.wp-btn:active {
+  transform: translateY(1px);
+}
+
+.wp-btn:focus-visible {
+  outline: 2px solid var(--hb-accent, #4CD7F6);
+  outline-offset: 3px;
+}
+
+.wp-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
 }
 
 .wp-home {
@@ -95,21 +145,24 @@ button.wp-btn-text {
 }
 
 .wp-home-card {
-  background: #fff;
+  background: var(--hb-surface-01, #0d1b2a);
+  border: 1px solid var(--hb-border, rgba(148, 163, 184, 0.16));
   border-radius: 20px;
   padding: 2rem;
   max-width: 400px;
   text-align: center;
-  box-shadow: 0 12px 40px rgba(27, 39, 72, 0.08);
+  box-shadow: var(--hb-shadow-lg, 0 16px 48px rgba(0, 0, 0, 0.35));
 }
 
 .wp-home-card h1 {
   margin: 1rem 0 0.5rem;
   font-size: 1.5rem;
+  color: var(--hb-text-primary, #f8fafc);
 }
 
 .wp-home-card p {
   margin: 0 0 1.5rem;
+  color: var(--hb-text-secondary, #cbd5e1);
   opacity: 0.88;
 }
 
@@ -120,33 +173,37 @@ button.wp-btn-text {
 }
 
 .wp-btn-primary {
-  background: var(--wp-red);
-  border-color: var(--wp-red);
-  color: #fff;
+  background: var(--hb-accent, #4CD7F6);
+  border-color: var(--hb-accent, #4CD7F6);
+  color: #051424;
   text-decoration: none;
 }
 
 .wp-btn-primary:hover {
-  filter: brightness(0.95);
-  background: var(--wp-red);
-  color: #fff;
+  background: var(--hb-accent-hover, #7ce5fa);
+  border-color: var(--hb-accent-hover, #7ce5fa);
+  color: #051424;
+  filter: none;
 }
 
 .wp-btn-ghost {
   text-decoration: none;
   border-color: transparent;
   background: transparent;
-  color: var(--wp-red);
+  color: var(--hb-accent, #4CD7F6);
 }
 
 .wp-btn-ghost:hover {
-  background: #ffecee;
-  color: var(--wp-red);
+  background: var(--hb-accent-soft, rgba(76, 215, 246, 0.1));
+  border-color: var(--hb-accent-border, rgba(76, 215, 246, 0.25));
+  color: var(--hb-accent-hover, #7ce5fa);
 }
 
 code {
   font-size: 0.9em;
-  background: rgba(27, 39, 72, 0.06);
+  background: var(--hb-surface-02, #102238);
+  color: var(--hb-accent, #4CD7F6);
+  border: 1px solid var(--hb-border, rgba(148, 163, 184, 0.16));
   padding: 0.1em 0.35em;
   border-radius: 6px;
 }
@@ -156,7 +213,7 @@ code {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: var(--font);
-  color: var(--wp-navy);
+  font-family: var(--font, "DM Sans", system-ui, sans-serif);
+  color: var(--hb-text-primary, #f8fafc);
   font-weight: 600;
 }

@@ -25,6 +25,8 @@ export function PartnersDirectoryPage() {
   const periodFilter = usePartnerDashboardFilters();
 
   useEffect(() => {
+    if (import.meta.env.DEV) return;
+
     void refreshSession();
   }, [refreshSession]);
 
@@ -40,8 +42,11 @@ export function PartnersDirectoryPage() {
   }, [status, partner, navigate]);
 
   async function handleSignOut() {
-    await signOut();
-    navigate("/partners");
+    try {
+      await signOut();
+    } finally {
+      navigate("/partners", { replace: true });
+    }
   }
 
   if (status === "loading" || !partner) {

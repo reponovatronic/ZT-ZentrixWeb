@@ -12,15 +12,30 @@ import "@/presentation/styles/session_unauthorized_modal.css";
 export function SessionUnauthorizedModal() {
   const navigate = useNavigate();
   const modalOpen = useSessionUnauthorizedUiStore((s) => s.modalOpen);
-
+// Mantener aquí todas tus validaciones actuales...
+  // useEffect(() => {
+  //   const handler = () => {
+  //     void usePartnerSessionStore.getState().signOut();
+  //     activateSessionUnauthorizedModal();
+  //   };
+  //   window.addEventListener(HB_SESSION_UNAUTHORIZED, handler);
+  //   return () => window.removeEventListener(HB_SESSION_UNAUTHORIZED, handler);
+  // }, []);
+// Mantener aquí todas tus validaciones actuales...
   useEffect(() => {
-    const handler = () => {
-      void usePartnerSessionStore.getState().signOut();
-      activateSessionUnauthorizedModal();
-    };
-    window.addEventListener(HB_SESSION_UNAUTHORIZED, handler);
-    return () => window.removeEventListener(HB_SESSION_UNAUTHORIZED, handler);
-  }, []);
+  const handler = () => {
+    if (import.meta.env.DEV) return;
+
+    void usePartnerSessionStore.getState().signOut();
+    activateSessionUnauthorizedModal();
+  };
+
+  window.addEventListener(HB_SESSION_UNAUTHORIZED, handler);
+
+  return () =>
+    window.removeEventListener(HB_SESSION_UNAUTHORIZED, handler);
+}, []);
+// Mantener aquí todas tus validaciones actuales...
 
   useEffect(() => {
     if (!modalOpen) return;

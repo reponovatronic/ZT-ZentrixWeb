@@ -13,7 +13,11 @@ import { adminOrderListToOrderRows } from "@/presentation/mappers/admin_orders_m
 import { getSalesChartCopy } from "@/presentation/utils/period_chart_labels";
 import { partnerInitialsPartner, partnerPhotoSrc } from "@/presentation/utils/partner_display_utils";
 import { useNavigate } from "react-router-dom";
-
+import {
+  mockOrders,
+  mockWeeklySales,
+  mockBagTypes,
+} from "../../../../../../packages/partner-dashboard/src/mock_data";
 export function PartnersPanelPage() {
   const navigate = useNavigate();
   const partner = usePartnerSessionStore((s) => s.partner);
@@ -49,12 +53,19 @@ export function PartnersPanelPage() {
 
   const dashboardLoading = metricsLoading || ordersLoading;
   const dashboardError = metricsError ?? ordersError;
-  const orders = ordersPage ? adminOrderListToOrderRows(ordersPage.items) : undefined;
-
+  // const orders = ordersPage ? adminOrderListToOrderRows(ordersPage.items) : undefined;
+  const orders = import.meta.env.DEV
+  ? mockOrders
+  : ordersPage
+    ? adminOrderListToOrderRows(ordersPage.items)
+    : undefined;
   async function handleSignOut() {
+  try {
     await signOut();
-    navigate("/partners");
+  } finally {
+    navigate("/partners", { replace: true });
   }
+}
 
   function navClick(id: string) {
     if (id === "dashboard") navigate("/partners/panel");
@@ -88,8 +99,14 @@ export function PartnersPanelPage() {
       orders={orders}
       dashboardLoading={dashboardLoading}
       dashboardError={dashboardError}
-      weeklySalesChart={{ data: weeklySales, loading: metricsLoading }}
-      bagTypesChart={{ data: bagTypes, loading: metricsLoading }}
+      weeklySalesChart={{
+      data: import.meta.env.DEV ? mockWeeklySales : weeklySales,
+      loading: import.meta.env.DEV ? false : metricsLoading,
+      }}
+      bagTypesChart={{
+      data: import.meta.env.DEV ? mockBagTypes : bagTypes,
+      loading: import.meta.env.DEV ? false : metricsLoading,
+     }}
       salesChartTitle={chartCopy.title}
       salesChartSubtitle={chartCopy.subtitle}
       onDownloadReportClick={openDownloadReport}

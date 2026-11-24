@@ -1,75 +1,102 @@
+
 .hb-download-modal-overlay {
   position: fixed;
   inset: 0;
   z-index: 1200;
+
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 1.25rem 1rem;
-  background: rgba(27, 39, 72, 0.45);
-  backdrop-filter: blur(4px);
+
+  background: rgba(3, 9, 22, 0.76);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
 }
 
 .hb-download-modal-card {
   width: min(100%, 440px);
-  background: #fff;
+  max-height: calc(100vh - 2.5rem);
+  overflow-y: auto;
+
+  background: #0d1b2a;
+  border: 1px solid rgba(148, 163, 184, 0.16);
   border-radius: 16px;
-  box-shadow: 0 24px 64px rgba(27, 39, 72, 0.2);
+
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.45);
 }
 
 .hb-download-modal-head {
   position: relative;
   padding: 1.25rem 3rem 1rem 1.35rem;
-  border-bottom: 1px solid rgba(27, 39, 72, 0.08);
+
+  border-bottom: 1px solid rgba(148, 163, 184, 0.14);
 }
 
 .hb-download-modal-head h2 {
   margin: 0 0 0.35rem;
+
+  color: #f8fafc;
   font-size: 1.15rem;
   font-weight: 800;
-  color: var(--hb-navy, #1b2748);
 }
 
 .hb-download-modal-sub {
   margin: 0;
+
+  color: #94a3b8;
   font-size: 0.84rem;
   font-weight: 500;
   line-height: 1.45;
-  color: rgba(27, 39, 72, 0.55);
 }
 
 .hb-download-modal-close {
   position: absolute;
   top: 0.85rem;
   right: 0.85rem;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   width: 36px;
   height: 36px;
-  border: none;
-  border-radius: 10px;
+
   background: transparent;
+  border: 1px solid transparent;
+  border-radius: 10px;
+
+  color: #94a3b8;
   font-size: 1.4rem;
   line-height: 1;
-  color: rgba(27, 39, 72, 0.5);
+
   cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 }
 
 .hb-download-modal-close:hover {
-  background: rgba(27, 39, 72, 0.06);
-  color: var(--hb-navy, #1b2748);
+  background: rgba(148, 163, 184, 0.1);
+  border-color: rgba(148, 163, 184, 0.15);
+  color: #f8fafc;
+}
+
+.hb-download-modal-close:focus-visible {
+  outline: 2px solid #4CD7F6;
+  outline-offset: 2px;
 }
 
 .hb-download-modal-body {
-  padding: 1.15rem 1.35rem 1.25rem;
   display: flex;
   flex-direction: column;
   gap: 1.1rem;
+  padding: 1.15rem 1.35rem 1.25rem;
 }
 
 .hb-download-modal-section-title {
   margin: 0 0 0.55rem;
+
+  color: #e2e8f0;
   font-size: 0.82rem;
   font-weight: 700;
-  color: var(--hb-navy, #1b2748);
 }
 
 .hb-download-modal-checks {
@@ -82,61 +109,129 @@
   display: flex;
   align-items: center;
   gap: 0.55rem;
+
+  color: #cbd5e1;
   font-size: 0.86rem;
   font-weight: 600;
-  color: rgba(27, 39, 72, 0.82);
+
   cursor: pointer;
 }
 
 .hb-download-modal-check input {
   width: 18px;
   height: 18px;
-  accent-color: var(--hb-red, #f4364c);
+  flex-shrink: 0;
+
+  accent-color: #4CD7F6;
   cursor: pointer;
+}
+
+.hb-download-modal-check input:focus-visible {
+  outline: 2px solid #4CD7F6;
+  outline-offset: 3px;
 }
 
 .hb-download-modal-foot {
   display: flex;
   justify-content: flex-end;
+  flex-wrap: wrap;
   gap: 0.65rem;
   padding: 0 1.35rem 1.35rem;
 }
 
 .hb-download-modal-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
   padding: 0.65rem 1.35rem;
+
+  border: 1px solid transparent;
   border-radius: 999px;
+
   font-family: inherit;
   font-size: 0.88rem;
   font-weight: 700;
+
   cursor: pointer;
-  border: 2px solid transparent;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.hb-download-modal-btn:focus-visible {
+  outline: 2px solid #4CD7F6;
+  outline-offset: 3px;
 }
 
 .hb-download-modal-btn--ghost {
-  background: #fff;
-  border-color: var(--hb-red, #f4364c);
-  color: var(--hb-red, #f4364c);
+  background: rgba(148, 163, 184, 0.06);
+  border-color: rgba(148, 163, 184, 0.25);
+  color: #cbd5e1;
 }
 
 .hb-download-modal-btn--ghost:hover {
-  background: rgba(244, 54, 76, 0.06);
+  background: rgba(148, 163, 184, 0.12);
+  border-color: rgba(148, 163, 184, 0.4);
+  color: #f8fafc;
 }
 
 .hb-download-modal-btn--solid {
-  background: var(--hb-red, #f4364c);
-  border-color: var(--hb-red, #f4364c);
-  color: #fff;
+  background: #4CD7F6;
+  border-color: #4CD7F6;
+  color: #071026;
 }
 
 .hb-download-modal-btn--solid:hover {
-  background: var(--hb-red-dark, #d92d42);
-  border-color: var(--hb-red-dark, #d92d42);
+  background: #7ce5fa;
+  border-color: #7ce5fa;
+  box-shadow: 0 4px 14px rgba(76, 215, 246, 0.18);
+}
+
+.hb-download-modal-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  box-shadow: none;
 }
 
 /* Panel del date picker dentro del modal */
 .hb-download-modal-body .hb-drp-panel {
   position: static;
-  box-shadow: none;
-  border: 1px solid rgba(27, 39, 72, 0.08);
   margin-top: 0.35rem;
+
+  background: #071026;
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  border-radius: 12px;
+
+  box-shadow: none;
+}
+
+@media (max-width: 480px) {
+  .hb-download-modal-overlay {
+    padding: 0.75rem;
+  }
+
+  .hb-download-modal-card {
+    max-height: calc(100vh - 1.5rem);
+    border-radius: 14px;
+  }
+
+  .hb-download-modal-head {
+    padding: 1.1rem 2.8rem 0.9rem 1rem;
+  }
+
+  .hb-download-modal-body {
+    padding: 1rem;
+  }
+
+  .hb-download-modal-foot {
+    padding: 0 1rem 1rem;
+  }
+
+  .hb-download-modal-btn {
+    flex: 1;
+    padding-inline: 0.9rem;
+  }
 }
